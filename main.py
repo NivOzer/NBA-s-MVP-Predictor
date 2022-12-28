@@ -8,8 +8,6 @@ import numpy as np
 import openpyxl
 from tabulate import tabulate
 
-# df = pd.read_excel("C:\\Users\\nivoz\\Desktop\\pyprojects\\NivAndGuy\\2021-2022playerstats.xlsx")
-# agedf = df.loc[:,['NAME','AGE']]
 
 r = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_per_game.html")
 soup = BeautifulSoup(r.content,'html.parser')
@@ -81,6 +79,9 @@ for cat in categories:
 
 # getDataStat("td","player",playername)
 # getDataStat("td","pos",position)
+
+
+#Takes the full points of a player in a team
 r2 = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_totals.html")
 soup2 = BeautifulSoup(r2.content,'html.parser')
 tempTag = soup2.findAll("td", {"data-stat": "pts"})
@@ -88,9 +89,100 @@ k =0
 for i in tempTag:
     allpoints[k] = (i.text.strip())
     k = k+1
+#takes the plusminus of a player in a team
+r3 = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_advanced.html")
+soup3 = BeautifulSoup(r3.content,'html.parser')
+tempTag = soup3.findAll("td", {"data-stat": "bpm"})
+k = 0
+for i in tempTag:
+    plusminus[k] = (i.text.strip())
+    k = k+1
 
+teamVictoriesDict = {
+    "ATL": 0,
+    "BOS": 0,
+    "BRK": 0,
+    "CHO": 0,
+    "CHI": 0,
+    "CLE": 0,
+    "DAL": 0,
+    "DEN": 0,
+    "DET": 0,
+    "GSW": 0,
+    "HOU": 0,
+    "IND": 0,
+    "LAC": 0,
+    "LAL": 0,
+    "MEM": 0,
+    "MIA": 0,
+    "MIL": 0,
+    "MIN": 0,
+    "NOP": 0,
+    "NYK": 0,
+    "OKC": 0,
+    "ORL": 0,
+    "PHI": 0,
+    "PHO": 0,
+    "POR": 0,
+    "SAC": 0,
+    "SAS": 0,
+    "TOR": 0,
+    "UTA": 0,
+    "WAS": 0
+}
 
-test = pd.DataFrame({'Player': playername,
+def get_team_abbreviation(team_name):
+    team_abbreviations = {
+        "Atlanta Hawks": "ATL",
+        "Boston Celtics": "BOS",
+        "Brooklyn Nets": "BRK",
+        "Charlotte Hornets": "CHO",
+        "Chicago Bulls": "CHI",
+        "Cleveland Cavaliers": "CLE",
+        "Dallas Mavericks": "DAL",
+        "Denver Nuggets": "DEN",
+        "Detroit Pistons": "DET",
+        "Golden State Warriors": "GSW",
+        "Houston Rockets": "HOU",
+        "Indiana Pacers": "IND",
+        "Los Angeles Clippers": "LAC",
+        "Los Angeles Lakers": "LAL",
+        "Memphis Grizzlies": "MEM",
+        "Miami Heat": "MIA",
+        "Milwaukee Bucks": "MIL",
+        "Minnesota Timberwolves": "MIN",
+        "New Orleans Pelicans": "NOP",
+        "New York Knicks": "NYK",
+        "Oklahoma City Thunder": "OKC",
+        "Orlando Magic": "ORL",
+        "Philadelphia 76ers": "PHI",
+        "Phoenix Suns": "PHO",
+        "Portland Trail Blazers": "POR",
+        "Sacramento Kings": "SAC",
+        "San Antonio Spurs": "SAS",
+        "Toronto Raptors": "TOR",
+        "Utah Jazz": "UTA",
+        "Washington Wizards": "WAS"
+    }
+    return team_abbreviations.get(team_name, "None")
+
+def updateTeamVictoriesDict():
+    r4 = requests.get("https://www.basketball-reference.com/leagues/NBA_2023.html")
+    soup4 = BeautifulSoup(r4.content, 'html.parser')
+    team_stats = soup4.findAll("tr", {"class": "full_table"})
+    for t in team_stats:
+        name = (t.find("th",{"data-stat":'team_name'})).find('a').text
+        win = (t.find("td",{"data-stat":'wins'})).text
+        # print(get_team_abbreviation(name))
+        # print(win)
+        teamVictoriesDict[get_team_abbreviation(name)] = win
+
+updateTeamVictoriesDict()
+
+def updateDfWinByTeam():
+    df.loc[df['Team'].isin(teamVictoriesDict.keys()), 'Victories in Season'] = df['Team'].map(teamVictoriesDict)
+
+df = pd.DataFrame({'Player': playername,
                      'Position': position,
                      'Age': age,
                      'Salary': salary,
@@ -111,26 +203,5 @@ test = pd.DataFrame({'Player': playername,
                      'Steals': steals
                     })
 
-# print(test)
-
-# print(f"playername: {len(playername)}")
-# print(f"position: {len(position)}")
-# print(f"age: {len(age)}")
-# print(f"team: {len(team)}")
-# print(f"salary: {len(salary)}")
-# print(f"won_conference: {len(won_conference)}")
-# print(f"victories_in_season: {len(victories_in_season)}")
-# print(f"allpoints: {len(allpoints)}")
-# print(f"ppg: {len(ppg)}")
-# print(f"team_conference_rank: {len(team_conference_rank)}")
-# print(f"is_allstar: {len(is_allstar)}")
-# print(f"plusminus: {len(plusminus)}")
-# print(f"orpg: {len(orpg)}")
-# print(f"drpg: {len(drpg)}")
-# print(f"apg: {len(apg)}")
-# print(f"games_played: {len(games_played)}")
-# print(f"minutes_per_game: {len(minutes_per_game)}")
-# print(f"blocks: {len(blocks)}")
-# print(f"steals: {len(steals)}")
-
-print(tabulate(test, headers='keys'))
+updateDfWinByTeam()
+print(tabulate(df, headers='keys'))
