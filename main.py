@@ -37,7 +37,6 @@ steals = []
 categories = [playername,position,age,team,salary,won_conference,victories_in_season,allpoints,ppg,team_conference_rank,is_allstar,plusminus,orpg,drpg,apg,games_played,minutes_per_game,blocks,steals]
 
 
-
 # Maybe consider adding cluch for more data
 maxDataSetSize = 812
 def getDataStat(tag,category,arr):
@@ -70,6 +69,8 @@ for cat in categories:
         data_stat_tag = 'ast_per_g'
     elif categories.index(cat) == 15:
         data_stat_tag = 'g'
+    elif categories.index(cat) == 16:
+        data_stat_tag = 'mp_per_g'
     elif categories.index(cat) == 17:
         data_stat_tag = 'blk_per_g'
     elif categories.index(cat) == 18:
@@ -80,11 +81,14 @@ for cat in categories:
 
 # getDataStat("td","player",playername)
 # getDataStat("td","pos",position)
-# getDataStat("td","age",age)
-# getDataStat("td","salary",salary)
-# getDataStat("td","team_id",team)
+r2 = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_totals.html")
+soup2 = BeautifulSoup(r2.content,'html.parser')
+tempTag = soup2.findAll("td", {"data-stat": "pts"})
+k =0
+for i in tempTag:
+    allpoints[k] = (i.text.strip())
+    k = k+1
 
-# test = pd.DataFrame({'Player':playername,'Position':position,'Age':age,'Salary':salary,'Team':team})
 
 test = pd.DataFrame({'Player': playername,
                      'Position': position,
@@ -108,4 +112,25 @@ test = pd.DataFrame({'Player': playername,
                     })
 
 # print(test)
+
+# print(f"playername: {len(playername)}")
+# print(f"position: {len(position)}")
+# print(f"age: {len(age)}")
+# print(f"team: {len(team)}")
+# print(f"salary: {len(salary)}")
+# print(f"won_conference: {len(won_conference)}")
+# print(f"victories_in_season: {len(victories_in_season)}")
+# print(f"allpoints: {len(allpoints)}")
+# print(f"ppg: {len(ppg)}")
+# print(f"team_conference_rank: {len(team_conference_rank)}")
+# print(f"is_allstar: {len(is_allstar)}")
+# print(f"plusminus: {len(plusminus)}")
+# print(f"orpg: {len(orpg)}")
+# print(f"drpg: {len(drpg)}")
+# print(f"apg: {len(apg)}")
+# print(f"games_played: {len(games_played)}")
+# print(f"minutes_per_game: {len(minutes_per_game)}")
+# print(f"blocks: {len(blocks)}")
+# print(f"steals: {len(steals)}")
+
 print(tabulate(test, headers='keys'))
