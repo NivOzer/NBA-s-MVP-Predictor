@@ -26,8 +26,8 @@ main_players_stat_domain = "https://www.basketball-reference.com/leagues/NBA_202
 totalpoints_player_domain = "https://www.basketball-reference.com/leagues/NBA_2022_totals.html"         #2
 player_plusminus_domain = "https://www.basketball-reference.com/leagues/NBA_2022_advanced.html"         #3
 team_victories_domain = "https://www.basketball-reference.com/leagues/NBA_2022.html"                    #4
-full_player_points_domain = "https://www.espn.com/nba/standings/_/season/2022/group/league"             #5
-check_if_player_is_allstar_domain = "https://www.basketball-reference.com/allstar/NBA_2022.html"        #6
+full_player_points_domain = "https://www.espn.com/nba/standings/_/season/2022/group/league"             #5 *** Different Button Class - might consider selenium ***
+check_if_player_is_allstar_domain = "https://www.basketball-reference.com/allstar/NBA_2022.html"        #6 *** Different Button Class ***
 
 
 #Main Player-Statistics pull
