@@ -12,17 +12,27 @@ from selenium import webdriver
 
 
 #Selenium
-driver = webdriver.Chrome("C:\Program Files (x86)\chromedriver.exe")
-driver.get('https://www.basketball-reference.com/leagues/NBA_2022_per_game.html')
-anchor = driver.find_element_by_css_selector('a.button2.prev')
-# Retrieve the link
-link = anchor.get_attribute('href')
-driver.close()
-print(link)
+# driver = webdriver.Chrome("C:\Program Files (x86)\chromedriver.exe")
+# driver.get('https://www.basketball-reference.com/leagues/NBA_2022_per_game.html')
+# anchor = driver.find_element_by_css_selector('a.button2.prev')
+# # Retrieve the link
+# link = anchor.get_attribute('href')
+# driver.close()
+# print(link)
 
 
-r = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_per_game.html")
-soup = BeautifulSoup(r.content,'html.parser')
+##DOMAIN LIST
+main_players_stat_domain = "https://www.basketball-reference.com/leagues/NBA_2022_per_game.html"        #1
+totalpoints_player_domain = "https://www.basketball-reference.com/leagues/NBA_2022_totals.html"         #2
+player_plusminus_domain = "https://www.basketball-reference.com/leagues/NBA_2022_advanced.html"         #3
+team_victories_domain = "https://www.basketball-reference.com/leagues/NBA_2022.html"                    #4
+full_player_points_domain = "https://www.espn.com/nba/standings/_/season/2022/group/league"             #5
+check_if_player_is_allstar_domain = "https://www.basketball-reference.com/allstar/NBA_2022.html"        #6
+
+
+#Main Player-Statistics pull
+main_players_stats_request = requests.get(main_players_stat_domain)
+main_players_stats_soup = BeautifulSoup(main_players_stats_request.content,'html.parser')
 
 
 #Categories
@@ -60,7 +70,7 @@ categories = [playername,position,age,team,salary,won_conference,victories_in_se
 # Maybe consider adding cluch for more data
 maxDataSetSize = 812
 def getDataStat(tag,category,arr):
-    tempTag = soup.findAll(tag,{"data-stat":category})
+    tempTag = main_players_stats_soup.findAll(tag,{"data-stat":category})
     if not tempTag:
         for i in range(maxDataSetSize):
             arr.append(None)
@@ -107,7 +117,7 @@ for cat in categories:
 # getDataStat("td","pos",position)
 
 #insert selected year to array
-selectedYear = (soup.find("div",{"id":"meta"})).find('span').text
+selectedYear = (main_players_stats_soup.find("div",{"id":"meta"})).find('span').text
 for i in range(maxDataSetSize):
     year[i] = selectedYear
 
@@ -117,17 +127,17 @@ for i in range(maxDataSetSize):
 
 
 #Takes the full points of a player in a team
-r2 = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_totals.html")
-soup2 = BeautifulSoup(r2.content,'html.parser')
-tempTag = soup2.findAll("td", {"data-stat": "pts"})
+totalpoints_player_request = requests.get(totalpoints_player_domain)
+totalpoints_player_soup = BeautifulSoup(totalpoints_player_request.content,'html.parser')
+tempTag = totalpoints_player_soup.findAll("td", {"data-stat": "pts"})
 k =0
 for i in tempTag:
     allpoints[k] = (i.text.strip())
     k = k+1
 #takes the plusminus of a player in a team
-r3 = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_advanced.html")
-soup3 = BeautifulSoup(r3.content,'html.parser')
-tempTag = soup3.findAll("td", {"data-stat": "bpm"})
+player_plusminus_request = requests.get(player_plusminus_domain)
+player_plusminus_soup = BeautifulSoup(player_plusminus_request.content,'html.parser')
+tempTag = player_plusminus_soup.findAll("td", {"data-stat": "bpm"})
 k = 0
 for i in tempTag:
     plusminus[k] = (i.text.strip())
@@ -205,9 +215,9 @@ def get_team_abbreviation(team_name):
     return team_abbreviations.get(team_name, "None")
 
 def updateTeamVictoriesDict():
-    r4 = requests.get("https://www.basketball-reference.com/leagues/NBA_2022.html")
-    soup4 = BeautifulSoup(r4.content, 'html.parser')
-    team_stats = soup4.findAll("tr", {"class": "full_table"})
+    team_victories_request = requests.get(team_victories_domain)
+    team_victories_soup = BeautifulSoup(team_victories_request.content, 'html.parser')
+    team_stats = team_victories_soup.findAll("tr", {"class": "full_table"})
     for t in team_stats:
         name = (t.find("th",{"data-stat":'team_name'})).find('a').text
         win = (t.find("td",{"data-stat":'wins'})).text
@@ -260,9 +270,9 @@ df = pd.DataFrame({'Player': playername,
 updateDfWinByTeam()
 
 #Takes the full points of a player in a team
-r5 = requests.get("https://www.espn.com/nba/standings/_/season/2022/group/league")
-soup5 = BeautifulSoup(r5.content,'html.parser')
-tempTag = soup5.findAll("span", {"class": "dn show-mobile"})
+full_player_points_request = requests.get(full_player_points_domain)
+full_player_points_soup = BeautifulSoup(full_player_points_request.content,'html.parser')
+tempTag = full_player_points_soup.findAll("span", {"class": "dn show-mobile"})
 rank = 1
 for i in tempTag:
     t=i.find('abbr')
@@ -275,9 +285,9 @@ df.loc[df['Team'].isin(value_by_team_dict.keys()), 'Team Conference Rank'] = df[
 
 
 #getAllstar column
-r6 = requests.get("https://www.basketball-reference.com/allstar/NBA_2022.html")
-soup6 = BeautifulSoup(r6.content,'html.parser')
-thTags = soup6.findAll("th", {"data-stat": "player","csk":True})
+check_if_player_is_allstar_request = requests.get(check_if_player_is_allstar_domain)
+check_if_player_is_allstar_soup = BeautifulSoup(check_if_player_is_allstar_request.content,'html.parser')
+thTags = check_if_player_is_allstar_soup.findAll("th", {"data-stat": "player","csk":True})
 for th in thTags:
     name = th.find('a').text
     df.loc[df['Player'] == name, 'Is All-Star'] = 1
