@@ -9,22 +9,23 @@ import openpyxl
 from tabulate import tabulate
 import selenium
 from selenium import webdriver
-"""
+
+
+#Selenium
 driver = webdriver.Chrome("C:\Program Files (x86)\chromedriver.exe")
 driver.get('https://www.basketball-reference.com/leagues/NBA_2022_per_game.html')
 anchor = driver.find_element_by_css_selector('a.button2.prev')
 # Retrieve the link
 link = anchor.get_attribute('href')
 driver.close()
-
-time.sleep(5)
-
 print(link)
-"""
+
 
 r = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_per_game.html")
 soup = BeautifulSoup(r.content,'html.parser')
 
+
+#Categories
 playername = []
 position = []
 age = []
@@ -106,7 +107,7 @@ for cat in categories:
 # getDataStat("td","pos",position)
 
 #insert selected year to array
-selectedYear = 2022
+selectedYear = (soup.find("div",{"id":"meta"})).find('span').text
 for i in range(maxDataSetSize):
     year[i] = selectedYear
 
@@ -132,7 +133,7 @@ for i in tempTag:
     plusminus[k] = (i.text.strip())
     k = k+1
 
-teamVictoriesDict = {
+value_by_team_dict = {
     "ATL": 0,
     "BOS": 0,
     "BRK": 0,
@@ -204,7 +205,7 @@ def get_team_abbreviation(team_name):
     return team_abbreviations.get(team_name, "None")
 
 def updateTeamVictoriesDict():
-    r4 = requests.get("https://www.basketball-reference.com/leagues/NBA_2023.html")
+    r4 = requests.get("https://www.basketball-reference.com/leagues/NBA_2022.html")
     soup4 = BeautifulSoup(r4.content, 'html.parser')
     team_stats = soup4.findAll("tr", {"class": "full_table"})
     for t in team_stats:
@@ -212,12 +213,12 @@ def updateTeamVictoriesDict():
         win = (t.find("td",{"data-stat":'wins'})).text
         # print(get_team_abbreviation(name))
         # print(win)
-        teamVictoriesDict[get_team_abbreviation(name)] = win
+        value_by_team_dict[get_team_abbreviation(name)] = win
 
 updateTeamVictoriesDict()
 
 def updateDfWinByTeam():
-    df.loc[df['Team'].isin(teamVictoriesDict.keys()), 'Victories in Season'] = df['Team'].map(teamVictoriesDict)
+    df.loc[df['Team'].isin(value_by_team_dict.keys()), 'Victories in Season'] = df['Team'].map(value_by_team_dict)
 
 
 
@@ -266,10 +267,10 @@ rank = 1
 for i in tempTag:
     t=i.find('abbr')
     name = (t['title'])
-    teamVictoriesDict[get_team_abbreviation(name)] = rank
+    value_by_team_dict[get_team_abbreviation(name)] = rank
     rank = rank +1
 
-df.loc[df['Team'].isin(teamVictoriesDict.keys()), 'Team Conference Rank'] = df['Team'].map(teamVictoriesDict)
+df.loc[df['Team'].isin(value_by_team_dict.keys()), 'Team Conference Rank'] = df['Team'].map(value_by_team_dict)
 
 
 
@@ -289,4 +290,3 @@ df.loc[df['Team'] == "GSW", 'Won Conference'] = 1
 #df.loc[df['Player'] != name, 'Won Conference'] = 0
 
 print(tabulate(df, headers='keys'))
-print(df.shape)
