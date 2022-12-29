@@ -31,9 +31,16 @@ games_played = []
 minutes_per_game = []
 blocks = []
 steals = []
+point3_perc = []
+point2_perc = []
+east_rank = []
+west_rank = []
+total_mvp = []
+year = [] #24
 
 
-categories = [playername,position,age,team,salary,won_conference,victories_in_season,allpoints,ppg,team_conference_rank,is_allstar,plusminus,orpg,drpg,apg,games_played,minutes_per_game,blocks,steals]
+
+categories = [playername,position,age,team,salary,won_conference,victories_in_season,allpoints,ppg,team_conference_rank,is_allstar,plusminus,orpg,drpg,apg,games_played,minutes_per_game,blocks,steals, point3_perc, point2_perc,east_rank, west_rank, total_mvp, year]
 
 
 # Maybe consider adding cluch for more data
@@ -74,6 +81,10 @@ for cat in categories:
         data_stat_tag = 'blk_per_g'
     elif categories.index(cat) == 18:
         data_stat_tag = 'stl_per_g'
+    elif categories.index(cat) == 19:
+        data_stat_tag = 'fg3_pct'
+    elif categories.index(cat) == 20:
+        data_stat_tag = 'fg2_pct'
     else:
         data_stat_tag = None
     getDataStat("td", data_stat_tag, cat)
@@ -217,7 +228,9 @@ df = pd.DataFrame({'Player': playername,
                      'Games Played': games_played,
                      'Minutes Per Game': minutes_per_game,
                      'Blocks': blocks,
-                     'Steals': steals
+                     'Steals': steals,
+                     '%3': point3_perc,
+                     '%2': point2_perc
                     })
 
 updateDfWinByTeam()
@@ -235,6 +248,21 @@ for i in tempTag:
 
 df.loc[df['Team'].isin(teamVictoriesDict.keys()), 'Team Conference Rank'] = df['Team'].map(teamVictoriesDict)
 
-print(teamVictoriesDict)
+
+
+#getAllstar column
+r6 = requests.get("https://www.basketball-reference.com/allstar/NBA_2022.html")
+soup6 = BeautifulSoup(r6.content,'html.parser')
+thTags = soup6.findAll("th", {"data-stat": "player","csk":True})
+for th in thTags:
+    name = th.find('a').text
+    df.loc[df['Player'] == name, 'Is All-Star'] = 1
+    #df.loc[df['Player'] != name, 'Is All-Star'] = 0
+
+
+#getWonConference column
+df.loc[df['Team'] == "BOS", 'Won Conference'] = 1
+df.loc[df['Team'] == "GSW", 'Won Conference'] = 1
+#df.loc[df['Player'] != name, 'Won Conference'] = 0
 
 print(tabulate(df, headers='keys'))
