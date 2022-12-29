@@ -32,6 +32,7 @@ minutes_per_game = []
 blocks = []
 steals = []
 
+
 categories = [playername,position,age,team,salary,won_conference,victories_in_season,allpoints,ppg,team_conference_rank,is_allstar,plusminus,orpg,drpg,apg,games_played,minutes_per_game,blocks,steals]
 
 
@@ -162,7 +163,10 @@ def get_team_abbreviation(team_name):
         "San Antonio Spurs": "SAS",
         "Toronto Raptors": "TOR",
         "Utah Jazz": "UTA",
-        "Washington Wizards": "WAS"
+        "Washington Wizards": "WAS",
+        #extraordinary abbr
+        "LA Clippers":  "LAC"
+
     }
     return team_abbreviations.get(team_name, "None")
 
@@ -181,6 +185,19 @@ updateTeamVictoriesDict()
 
 def updateDfWinByTeam():
     df.loc[df['Team'].isin(teamVictoriesDict.keys()), 'Victories in Season'] = df['Team'].map(teamVictoriesDict)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 df = pd.DataFrame({'Player': playername,
                      'Position': position,
@@ -204,5 +221,20 @@ df = pd.DataFrame({'Player': playername,
                     })
 
 updateDfWinByTeam()
+
+#Takes the full points of a player in a team
+r5 = requests.get("https://www.espn.com/nba/standings/_/season/2022/group/league")
+soup5 = BeautifulSoup(r5.content,'html.parser')
+tempTag = soup5.findAll("span", {"class": "dn show-mobile"})
+rank = 1
+for i in tempTag:
+    t=i.find('abbr')
+    name = (t['title'])
+    teamVictoriesDict[get_team_abbreviation(name)] = rank
+    rank = rank +1
+
+df.loc[df['Team'].isin(teamVictoriesDict.keys()), 'Team Conference Rank'] = df['Team'].map(teamVictoriesDict)
+
+print(teamVictoriesDict)
+
 print(tabulate(df, headers='keys'))
-print("Version 4")
