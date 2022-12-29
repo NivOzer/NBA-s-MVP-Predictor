@@ -7,7 +7,20 @@ import time
 import numpy as np
 import openpyxl
 from tabulate import tabulate
+import selenium
+from selenium import webdriver
+"""
+driver = webdriver.Chrome("C:\Program Files (x86)\chromedriver.exe")
+driver.get('https://www.basketball-reference.com/leagues/NBA_2022_per_game.html')
+anchor = driver.find_element_by_css_selector('a.button2.prev')
+# Retrieve the link
+link = anchor.get_attribute('href')
+driver.close()
 
+time.sleep(5)
+
+print(link)
+"""
 
 r = requests.get("https://www.basketball-reference.com/leagues/NBA_2022_per_game.html")
 soup = BeautifulSoup(r.content,'html.parser')
@@ -91,6 +104,15 @@ for cat in categories:
 
 # getDataStat("td","player",playername)
 # getDataStat("td","pos",position)
+
+#insert selected year to array
+selectedYear = 2022
+for i in range(maxDataSetSize):
+    year[i] = selectedYear
+
+
+
+
 
 
 #Takes the full points of a player in a team
@@ -230,7 +252,8 @@ df = pd.DataFrame({'Player': playername,
                      'Blocks': blocks,
                      'Steals': steals,
                      '%3': point3_perc,
-                     '%2': point2_perc
+                     '%2': point2_perc,
+                     'year': year
                     })
 
 updateDfWinByTeam()
@@ -266,3 +289,4 @@ df.loc[df['Team'] == "GSW", 'Won Conference'] = 1
 #df.loc[df['Player'] != name, 'Won Conference'] = 0
 
 print(tabulate(df, headers='keys'))
+print(df.shape)
