@@ -275,6 +275,14 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
     df.loc[df['Team'] == "GSW", 'Won Conference'] = 1
     #df.loc[df['Player'] != name, 'Won Conference'] = 0
 
+    #pads with NaNs to make sure that all arrays (that makes the dataframes) are thew same length
+    for cat in categories:
+        if len(cat)<maxDataSetSize:
+            for i in range (maxDataSetSize-len(cat)):
+                cat.append(None)
+
+
+
     return df
 
 #Accessing the previous years pages
