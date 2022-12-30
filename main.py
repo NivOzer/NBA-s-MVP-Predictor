@@ -215,6 +215,14 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
     def updateDfWinByTeam():
         df.loc[df['Team'].isin(value_by_team_dict.keys()), 'Victories in Season'] = df['Team'].map(value_by_team_dict)
 
+
+    #pads with NaNs to make sure that all arrays (that makes the dataframes) are thew same length
+    for cat in categories:
+        if len(cat)<=maxDataSetSize:
+            for i in range (maxDataSetSize-len(cat)):
+                cat.append(None)
+
+
     #Creates the DataFrame
 
     df = pd.DataFrame({'Player': playername,
@@ -275,11 +283,8 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
     df.loc[df['Team'] == "GSW", 'Won Conference'] = 1
     #df.loc[df['Player'] != name, 'Won Conference'] = 0
 
-    #pads with NaNs to make sure that all arrays (that makes the dataframes) are thew same length
-    for cat in categories:
-        if len(cat)<maxDataSetSize:
-            for i in range (maxDataSetSize-len(cat)):
-                cat.append(None)
+
+
 
 
 
@@ -307,7 +312,7 @@ select.select_by_value("2020-21")
 selected_option = select.first_selected_option
 link = selected_option.get_attribute("data-url")
 """
-link = "https://www.espn.com/nba/standings/_/season/2021/group/league"
+# link = "https://www.espn.com/nba/standings/_/season/2021/group/league"
 domains[i] = link
 i=i+1
 #fifth site
@@ -323,4 +328,3 @@ print("*************************************************************************
 print("********************************************************************************************************************************************************************")
 print(tabulate(df2, headers='keys'))
 print(domains)
-print("shit")
