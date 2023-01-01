@@ -11,7 +11,9 @@ import selenium
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 
-
+year =2022
+amount_of_data_frames = 1
+dframes =[]
 driver = webdriver.Chrome("C:\Program Files (x86)\chromedriver.exe")
 
 #DOMAIN'S
@@ -304,38 +306,52 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
 #Accessing the previous years pages
 
 
-
+dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6]))
 # #Selenium
-df = create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6])
-for i in range(4):
-    driver.get(domains[i])
-    link = driver.find_element_by_css_selector('a.button2.prev').get_attribute('href')
+for dfs in range(amount_of_data_frames):
+    i=0
+    for i in range(4):
+        driver.get(domains[i])
+        link = driver.find_element_by_css_selector('a.button2.prev').get_attribute('href')
+        domains[i] = link
+    i=i+1
+    #fourth site
+    year = year -(dfs+1)
+    link = "https://www.espn.com/nba/standings/_/season/"+str(year)+"/group/league"
     domains[i] = link
-i=i+1
-#fourth site
-""""
-driver.get(domains[i])
-dropdown_button = driver.find_element_by_css_selector("select.dropdown__select")
-dropdown_button.click()
-# Select the "2020-21" option from the dropdown menu
-select = Select(dropdown_button)
-select.select_by_value("2020-21")
-selected_option = select.first_selected_option
-link = selected_option.get_attribute("data-url")
-"""
-link = "https://www.espn.com/nba/standings/_/season/2021/group/league"
-domains[i] = link
-i=i+1
-#fifth site
-driver.get(domains[i])
-link = driver.find_element_by_css_selector('a.button2').get_attribute('href')
-domains[i] = link
-df2 = create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],"https://www.basketball-reference.com/allstar/NBA_2022.html",domains[6])
-driver.quit()
+    i=i+1
+    #fifth site
+    driver.get(domains[i])
+    link = driver.find_element_by_css_selector('a.button2').get_attribute('href')
+    domains[i] = link
+    dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6]))
+    driver.quit()
+    #sixth site - Not needed - its a list for all years back conference winners and losers
 
+domains[0] = "https://www.basketball-reference.com/leagues/NBA_2020_per_game.html"
+domains[1] = "https://www.basketball-reference.com/leagues/NBA_2020_totals.html"
+domains[2] = "https://www.basketball-reference.com/leagues/NBA_2020_advanced.html"
+domains[3] = "https://www.basketball-reference.com/leagues/NBA_2020.html"
+domains[4] = "https://www.espn.com/nba/standings/_/season/2020/group/league"
+domains[5] = "https://www.basketball-reference.com/allstar/NBA_2020.html"
+dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6]))
+for df in dframes:
+    print(tabulate(df, headers='keys'))
+    print("****************************************************************************************************************************************************************************************************************")
 
-print(tabulate(df, headers='keys'))
-print("********************************************************************************************************************************************************************")
-print("********************************************************************************************************************************************************************")
-print(tabulate(df2, headers='keys'))
-# print(domains)
+# i=0
+# for i in range(4):
+#     driver.get(domains[i])
+#     link = driver.find_element_by_css_selector('a.button2.prev').get_attribute('href')
+#     domains[i] = link
+# i=i+1
+# #fourth site
+# year = year -2
+# link = "https://www.espn.com/nba/standings/_/season/"+str(year)+"/group/league"
+# domains[i] = link
+# i=i+1
+# #fifth site
+# driver.get(domains[i])
+# link = driver.find_element_by_css_selector('a.button2').get_attribute('href')
+# domains[i] = link
+# driver.quit()
