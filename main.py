@@ -335,7 +335,11 @@ domains[3] = "https://www.basketball-reference.com/leagues/NBA_2020.html"
 domains[4] = "https://www.espn.com/nba/standings/_/season/2020/group/league"
 domains[5] = "https://www.basketball-reference.com/allstar/NBA_2020.html"
 dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6]))
+i=0
 for df in dframes:
+    filename = ("DataFrame"+str(i))
+    i=i+1
+    df.to_csv(filename)
     print(tabulate(df, headers='keys'))
     print("****************************************************************************************************************************************************************************************************************")
 
