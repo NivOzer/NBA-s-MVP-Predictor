@@ -11,6 +11,7 @@ import selenium
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 
+
 driver = webdriver.Chrome("C:\Program Files (x86)\chromedriver.exe")
 
 #DOMAIN'S
@@ -20,8 +21,9 @@ player_plusminus_domain = "https://www.basketball-reference.com/leagues/NBA_2022
 team_victories_domain = "https://www.basketball-reference.com/leagues/NBA_2022.html"                    #3
 full_player_points_domain = "https://www.espn.com/nba/standings/_/season/2022/group/league"             #4 *** Different Button Class - might consider selenium ***
 check_if_player_is_allstar_domain = "https://www.basketball-reference.com/allstar/NBA_2022.html"        #5 *** Different Button Class ***
-domains = [main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain]
-def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain):
+won_conference_team_domain = "https://blog.ticketcity.com/nba/nba-finals-champions/"                    #6
+domains = [main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain,won_conference_team_domain]
+def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain,won_conference_team_domain):
     #Main Player-Statistics pull
     main_players_stats_request = requests.get(main_players_stat_domain)
     main_players_stats_soup = BeautifulSoup(main_players_stats_request.content,'html.parser')
@@ -53,7 +55,6 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
     year = [] #24
     maxDataSetSize = 812
     categories = [playername,position,age,team,salary,won_conference,victories_in_season,allpoints,ppg,team_conference_rank,is_allstar,plusminus,orpg,drpg,apg,games_played,minutes_per_game,blocks,steals, point3_perc, point2_perc,east_rank, west_rank, total_mvp, year]
-
     def getDataStat(tag,category,arr):
         tempTag = main_players_stats_soup.findAll(tag,{"data-stat":category})
         if not tempTag:
@@ -103,6 +104,7 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
 
     #insert selected year to array
     selectedYear = (main_players_stats_soup.find("div",{"id":"meta"})).find('span').text
+    currentYear = int(selectedYear[:4])+1
     for i in range(maxDataSetSize):
         year[i] = selectedYear
 
@@ -279,13 +281,22 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
 
     #getWonConference column
 
-    df.loc[df['Team'] == "BOS", 'Won Conference'] = 1
-    df.loc[df['Team'] == "GSW", 'Won Conference'] = 1
+    won_conference_team_request = requests.get("https://www.landofbasketball.com/championships/year_by_year.htm")
+    won_conference_team_soup = BeautifulSoup(won_conference_team_request.content, "html.parser")
+    wonConference = won_conference_team_soup.findAll("div", {"class": "rd-100 a-center a-right-sm margen-r5 wpx-170"})
+    lostConference = won_conference_team_soup.findAll("div", {"class": "rd-100 a-center a-left-sm wpx-170"})
+    w = []
+    l = []
+    for i in wonConference:
+        winningTeam = i.find('a').text
+        w.append(winningTeam)
+    for i in lostConference:
+        losingTeam = i.find('a').text
+        l.append(losingTeam)
+
+    df.loc[df['Team'] == get_team_abbreviation(w[2022-currentYear]), 'Won Conference'] = 1
+    df.loc[df['Team'] == get_team_abbreviation(l[2022-currentYear]), 'Won Conference'] = 1
     #df.loc[df['Player'] != name, 'Won Conference'] = 0
-
-
-
-
 
 
     return df
@@ -295,7 +306,7 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
 
 
 # #Selenium
-df = create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5])
+df = create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6])
 for i in range(4):
     driver.get(domains[i])
     link = driver.find_element_by_css_selector('a.button2.prev').get_attribute('href')
@@ -312,14 +323,14 @@ select.select_by_value("2020-21")
 selected_option = select.first_selected_option
 link = selected_option.get_attribute("data-url")
 """
-# link = "https://www.espn.com/nba/standings/_/season/2021/group/league"
+link = "https://www.espn.com/nba/standings/_/season/2021/group/league"
 domains[i] = link
 i=i+1
 #fifth site
 driver.get(domains[i])
 link = driver.find_element_by_css_selector('a.button2').get_attribute('href')
 domains[i] = link
-df2 = create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],"https://www.basketball-reference.com/allstar/NBA_2022.html")
+df2 = create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],"https://www.basketball-reference.com/allstar/NBA_2022.html",domains[6])
 driver.quit()
 
 
@@ -327,4 +338,4 @@ print(tabulate(df, headers='keys'))
 print("********************************************************************************************************************************************************************")
 print("********************************************************************************************************************************************************************")
 print(tabulate(df2, headers='keys'))
-print(domains)
+# print(domains)
