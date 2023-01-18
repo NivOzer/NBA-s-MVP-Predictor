@@ -26,8 +26,9 @@ full_player_points_domain = "https://www.espn.com/nba/standings/_/season/2022/gr
 check_if_player_is_allstar_domain = "https://www.basketball-reference.com/allstar/NBA_2022.html"        #5 *** Different Button Class ***
 won_conference_team_domain = "https://blog.ticketcity.com/nba/nba-finals-champions/"                    #6
 player_salary_domain = "https://hoopshype.com/salaries/players/2021-2022/"                              #7
-domains = [main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain,won_conference_team_domain,player_salary_domain]
-def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain,won_conference_team_domain,player_salary_domain):
+mvp_predict_domain = "https://www.basketball-reference.com/awards/awards_2021.html"                               #8
+domains = [main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain,won_conference_team_domain,player_salary_domain, mvp_predict_domain ]
+def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain,won_conference_team_domain,player_salary_domain,mvp_predict_domain):
     #Main Player-Statistics pull
     main_players_stats_request = requests.get(main_players_stat_domain)
     main_players_stats_soup = BeautifulSoup(main_players_stats_request.content,'html.parser')
@@ -57,8 +58,9 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
     west_rank = []
     total_mvp = []
     year = [] #24
+    mvp_prospect = []#25
     maxDataSetSize = 812
-    categories = [playername,position,age,team,salary,won_conference,victories_in_season,allpoints,ppg,team_conference_rank,is_allstar,plusminus,orpg,drpg,apg,games_played,minutes_per_game,blocks,steals, point3_perc, point2_perc,east_rank, west_rank, total_mvp, year]
+    categories = [playername,position,age,team,salary,won_conference,victories_in_season,allpoints,ppg,team_conference_rank,is_allstar,plusminus,orpg,drpg,apg,games_played,minutes_per_game,blocks,steals, point3_perc, point2_perc,east_rank, west_rank, total_mvp, year, mvp_prospect]
     def getDataStat(tag,category,arr):
         tempTag = main_players_stats_soup.findAll(tag,{"data-stat":category})
         if not tempTag:
@@ -252,7 +254,8 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
                          'Steals': steals,
                          '%3': point3_perc,
                          '%2': point2_perc,
-                         'year': year
+                         'year': year,
+                         'MVP Prospect': mvp_prospect
                         })
 
     updateDfWinByTeam()
@@ -303,6 +306,8 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
     #df.loc[df['Player'] != name, 'Won Conference'] = 0
 
 
+
+
     #Get the Salary column assigning each player his years salary by his name
     player_salary_request = requests.get(player_salary_domain)
     player_salary_soup= BeautifulSoup(player_salary_request.content,"html.parser")
@@ -328,11 +333,19 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
         else:   df.at[index, "Salary"] = "N/A"
     salaries = None
 
-
+    #get MVP Prospect bool
+    if mvp_predict_domain is not None:
+        mvp_prospect_request = requests.get(mvp_predict_domain)
+        mvp_prospect_soup = BeautifulSoup(mvp_prospect_request.content, "html.parser")
+        playertBody = mvp_prospect_soup.find('tbody')
+        player_td_tag = playertBody.findAll("td",{"data-stat":"player"})
+        for p in player_td_tag:
+            name = p.find("a").text
+            df.loc[df['Player'] == name, 'MVP Prospect'] = 1
     return df
 
 
-dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6],domains[7]))
+dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6],domains[7],None))
 # #Selenium
 for dfs in range(amount_of_data_frames):
     i=0
@@ -355,7 +368,7 @@ for dfs in range(amount_of_data_frames):
     #sixth site - Not needed - its a list for all years back conference winners and losers
     #Seventh site - extracting the previous link for the players salaries
 
-    dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6],domains[7]))
+    dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6],domains[7],domains[8]))
     driver.quit()
 
 
@@ -366,8 +379,9 @@ domains[3] = "https://www.basketball-reference.com/leagues/NBA_2020.html"
 domains[4] = "https://www.espn.com/nba/standings/_/season/2020/group/league"
 domains[5] = "https://www.basketball-reference.com/allstar/NBA_2020.html"
 domains[7] = "https://hoopshype.com/salaries/players/2019-2020/"
+domains[8] = "https://www.basketball-reference.com/awards/awards_2020.html"
 
-dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6],domains[7]))
+dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6],domains[7],domains[8]))
 i=0
 print(domains[7])
 for df in dframes:

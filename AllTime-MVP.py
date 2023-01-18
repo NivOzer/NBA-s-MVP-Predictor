@@ -96,7 +96,7 @@ def create_dataframe(domain):
                        'Field Goals Perc%': field_goal_perc
                        })
     i=0
-    filename = ("DataFrame"+str(i))
+    filename = "All Time MVP's"
     i=i+1
     df.to_csv(filename)
     print(tabulate(df, headers='keys'))

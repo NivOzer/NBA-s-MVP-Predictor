@@ -10,6 +10,7 @@ for df in dfs:
     df.dropna(subset=['Victories in Season'], how='all', inplace=True)
     df['Won Conference'].fillna(0, inplace=True)
     df['Is All-Star'].fillna(0, inplace=True)
+    df['MVP Prospect'].fillna(0, inplace=True)
     print(tabulate(df, headers='keys'))
     print('\n\n\n')
 
