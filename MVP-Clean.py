@@ -11,4 +11,5 @@ for df in dfs:
     df['Won Conference'].fillna(0, inplace=True)
     df['Is All-Star'].fillna(0, inplace=True)
     print(tabulate(df, headers='keys'))
+    print('\n\n\n')
 
