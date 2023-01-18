@@ -26,7 +26,7 @@ full_player_points_domain = "https://www.espn.com/nba/standings/_/season/2022/gr
 check_if_player_is_allstar_domain = "https://www.basketball-reference.com/allstar/NBA_2022.html"        #5 *** Different Button Class ***
 won_conference_team_domain = "https://blog.ticketcity.com/nba/nba-finals-champions/"                    #6
 player_salary_domain = "https://hoopshype.com/salaries/players/2021-2022/"                              #7
-mvp_predict_domain = "https://www.basketball-reference.com/awards/awards_2021.html"                               #8
+mvp_predict_domain = "https://www.basketball-reference.com/awards/awards_2022.html"                               #8
 domains = [main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain,won_conference_team_domain,player_salary_domain, mvp_predict_domain ]
 def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_plusminus_domain,team_victories_domain,full_player_points_domain,check_if_player_is_allstar_domain,won_conference_team_domain,player_salary_domain,mvp_predict_domain):
     #Main Player-Statistics pull
@@ -345,7 +345,7 @@ def create_dataframe(main_players_stat_domain,totalpoints_player_domain,player_p
     return df
 
 
-dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6],domains[7],None))
+dframes.append(create_dataframe(domains[0],domains[1],domains[2],domains[3],domains[4],domains[5],domains[6],domains[7],domains[8]))
 # #Selenium
 for dfs in range(amount_of_data_frames):
     i=0
@@ -364,7 +364,9 @@ for dfs in range(amount_of_data_frames):
     link = driver.find_element_by_css_selector('a.button2').get_attribute('href')
     domains[i] = link
     i=i+2
-    if dfs == 1:domains[7] = "https://hoopshype.com/salaries/players/2020-2021/"
+    if dfs == 1:
+        domains[7] = "https://hoopshype.com/salaries/players/2020-2021/"
+        domains[8] = "https://www.basketball-reference.com/awards/awards_2021.html"
     #sixth site - Not needed - its a list for all years back conference winners and losers
     #Seventh site - extracting the previous link for the players salaries
 
