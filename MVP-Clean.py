@@ -15,7 +15,7 @@ for df in dfs:
     # df['MVP Prospect'] = df['Points Per Game (PPG)'].apply(lambda x: 1 if x > 27 else 0)
     # df['MVP Prospect'] = df['Defensive Rebounds Per Game (DRPG)'].apply(lambda x: 1 if x >=7 else 0)
     # df['MVP Prospect'] = df['Blocks'].apply(lambda x: 1 if x >=0.6 else 0)
-    df['MVP Prospect'] = df[['Points Per Game (PPG)', 'Defensive Rebounds Per Game (DRPG)', 'Blocks']].apply(lambda x: 1 if (x['Points Per Game (PPG)'] > 27) | (x['Defensive Rebounds Per Game (DRPG)'] >= 6) | (x['Blocks'] >= 0.6) else 0, axis=1)
+    df['MVP Prospect'] = df[['Points Per Game (PPG)', 'Defensive Rebounds Per Game (DRPG)', 'Blocks']].apply(lambda x: 1 if (x['Points Per Game (PPG)'] >= 27) | (x['Defensive Rebounds Per Game (DRPG)'] >= 6) | (x['Blocks'] >= 0.6) else 0, axis=1)
 result = pd.concat([df,df1,df2])
 
 result.dropna(how="any",inplace=True)

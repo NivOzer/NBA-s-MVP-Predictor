@@ -27,5 +27,4 @@ df_y_pred = pd.DataFrame({'Player': result['Player'], 'y_pred': y_pred_padded})
 player_names = df_y_pred.loc[df_y_pred['y_pred'] == 1, 'Player']
 print(player_names)
 
-print(len(y_pred))
 # print(tabulate(result, headers='keys'))
