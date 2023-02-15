@@ -6,8 +6,7 @@ https://drive.google.com/file/d/1jOZTShFsRjnbLT4JPmWf2p7Eo1qP_ZJS/view?usp=shari
 
 פרוייקט סוף מדעי הנתונים : Mvp Prospect Prediction
 Jupyter קובץ  ה
-נשמר בשם 
-"Jupyter"
+נשמר בשם Jupyter
 
 word קובץ מסמך ה
 נשמר בשם 
